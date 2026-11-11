@@ -2,7 +2,7 @@
 
 namespace Practice_Library;
 
-public enum BorrowResult
+public enum LoanResult
 {
     Success,
     NotFound,
@@ -12,17 +12,17 @@ public enum BorrowResult
 
 public class Library
 {
-    private List<Book> Bookslist { get; } = new List<Book>();
+    private readonly List<Book> _books = new List<Book>();
 
-    public int TotalBooks => Bookslist.Count;
+    public int TotalBooks => _books.Count;
 
     public void AddBook(Book book)
     {
-        Bookslist.Add(book);
+        _books.Add(book);
     }
-    public Book? FindByID(int id)
+    public Book? FindById(int id)
     {
-        foreach (var book in Bookslist)
+        foreach (var book in _books)
         {
             if (id == book.Id)
             {
@@ -32,10 +32,10 @@ public class Library
         return null;
     }
 
-    public List<Book>? FindByAuthor(string author)
+    public List<Book> FindByAuthor(string author)
     {
         var books = new List<Book>();
-        foreach (var book in Bookslist)
+        foreach (var book in _books)
         {
             if (book.Author.Contains(author, StringComparison.OrdinalIgnoreCase))
             {
@@ -49,7 +49,7 @@ public class Library
     public List<Book> GetAvailableBooks()
     {
         var books = new List<Book>();
-        foreach (var book in Bookslist)
+        foreach (var book in _books)
         {
             if (!book.IsBorrowed)
             {
@@ -62,40 +62,39 @@ public class Library
     public int CountByGenre(GenreType genre)
     {
         var count = 0;
-        foreach (var book in Bookslist)
+        foreach (var book in _books)
         {
             if (book.Genre == genre)
             {
                 count++;
-                continue;
             }
         }
         return count;
     }
 
-    public BorrowResult BorrowBook(int id)
+    public LoanResult BorrowBook(int id)
     {
-        var isBookAvailable = FindByID(id);
+        var book = FindById(id);
 
-        if (isBookAvailable is null)
+        if (book is null)
         {
-            return BorrowResult.NotFound;
+            return LoanResult.NotFound;
         }
-        return isBookAvailable.Borrow() ? BorrowResult.Success : BorrowResult.AlreadyBorrowed;
+        return book.Borrow() ? LoanResult.Success : LoanResult.AlreadyBorrowed;
 
     }
-    public BorrowResult ReturnBook(int id)
+    public LoanResult ReturnBook(int id)
     {
-        var isBookAvailable = FindByID(id);
+        var book = FindById(id);
 
-        if (isBookAvailable is null)
+        if (book is null)
         {
-            return BorrowResult.NotFound;
+            return LoanResult.NotFound;
         }
-        return isBookAvailable.Return() ? BorrowResult.Success : BorrowResult.NotBorrowed;
+        return book.Return() ? LoanResult.Success : LoanResult.NotBorrowed;
 
     }
 
-    public List<Book> GetAllBooks => new List<Book>(Bookslist);
+    public List<Book> GetAllBooks() => new List<Book>(_books);
 
 }
